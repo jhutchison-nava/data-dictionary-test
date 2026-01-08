@@ -15,24 +15,32 @@ async function main() {
 
   await downloadData()
 
-  const path = "./data/V2/"
-  const fileNames = fs.readdirSync(path)
-  let typeList = []
+  const basePath = "./data"
+  const versions = fs.readdirSync(basePath)
 
-  fileNames.forEach((fileName) => {
-    let typeName = fileName.match(/(^.*?)\.json/)
-    if (typeName) {
-      typeList.push(JSON.parse(fs.readFileSync(path + fileName, 'utf8').toString()))
+  versions.forEach((v) => {
+    const fullPath = `${basePath}/${v}`
+    const fileNames = fs.readdirSync(fullPath)
+    let typeList = []
+
+    fileNames.forEach((fileName) => {
+      let typeName = fileName.match(/(^.*?)\.json/)
+      if (typeName) {
+        typeList.push(JSON.parse(fs.readFileSync(`${fullPath}/${fileName}`, 'utf8').toString()))
+      }
+    })
+
+
+    try {
+      console.log(`Writing data-dictionary-${v}.json...`)
+      fs.writeFileSync(`data-dictionary-${v}.json`, JSON.stringify(typeList, null, 2));
+      console.log(`Success`)
+      // file written successfully
+    } catch (err) {
+      console.error(err);
     }
+
   })
-
-
-  try {
-    fs.writeFileSync('data-dictionary.json', JSON.stringify(typeList, null, 2));
-    // file written successfully
-  } catch (err) {
-    console.error(err);
-  }
 }
 
 main()
